@@ -1,6 +1,5 @@
-const config = require("../config/auth.config");
 const db = require("../models");
-const Transaction = db.transactioin;
+const Transaction = db.transaction;
 const User = db.user;
 
 exports.addTransaction = (req, res) => {
@@ -10,7 +9,6 @@ exports.addTransaction = (req, res) => {
         res.sendStatus(404).send('User was not found').end();
       }
       else{
-        console.log(result); 
         const transaction = new Transaction({
           amount: req.body.amount,
           date: req.body.date,
@@ -19,36 +17,28 @@ exports.addTransaction = (req, res) => {
           type: req.body.type,
         });
         transaction.save((err, tran) => {
-          if (err) {
-            console.log('errorrrr');
+          if (!!err) {
             res.status(500).send({ message: err });
             return;
           }
-      
-          res.send({ message: "User was registered successfully!" });
         });
-        console.log('1'); 
-        result.transactions.push(transaction);
-        console.log('1');
-        result.markModified('transactions');
-        console.log('1');
-        result.save(function(saveerr, saveresult) {
-          if (!saveerr) {
-            console.log('1');
-            User.findById(result.id)
-            .populate('transactions', '__v')
-            .exec((err, user) => {
-              if (err) {
-                //res.status(500).send({ message: err });
-                // return;
-                console.log(err);
-              }
 
-              console.log(user);
-              res.status(200).send(user);
-            }) 
-            console.log('1');
-            // res.status(200).send(saveresult);
+        result.transactions.push(transaction);
+        result.markModified('transactions');
+        result.save((saveerr, saveresult) => {
+          if (!saveerr) {
+            User.findById(result.id)
+            .populate('transactions')
+            .exec((err, user) => {
+              if (!!err) {
+                res.status(500).send({ message: err });
+                return;
+              }
+              user.id = user._id;
+              delete user._id;
+              res.status(200).send({...user._doc, accessToken: req.headers["x-access-token"]});
+              return;
+            });
           } else {
             res.status(400).send(saveerr.message);
           }

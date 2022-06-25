@@ -1,5 +1,5 @@
 export default interface ITransaction {
-  id?: any | null,
+  _id?: any | null,
   amount: Number,
   date: string,
   discription: String,

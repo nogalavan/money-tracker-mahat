@@ -37,7 +37,6 @@ const Register = () => {
   const handleRegister = () => {
     register(username, email, password, firstName, lastName, balance, budget).then(
       (response) => {
-        console.log('yyyay');
         navigate('/');
       },
       (error) => {

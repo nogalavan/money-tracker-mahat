@@ -1,17 +1,17 @@
 import axios from "axios";
-import ITransaction from "../types/transaction.type";
-import IUser from "../types/user.type";
 import authHeader from "./auth-header";
-import { getCurrentUser } from "./auth.service";
 
 const API_URL = "http://localhost:8080/api/users/";
 
 export const addTransaction = (amount: Number, date: String, discription: String, catagory: String, type: String, userId: String) => {
+  const headers = authHeader();
+  console.log(headers);
   return axios.put(API_URL + `addTransaction/${userId}`, {amount, date,discription, catagory, type 
-  }).then((response) => {
-    if (response.data.accessToken) {
-      localStorage.setItem("user", JSON.stringify(response.data));
-    }
+  }, { headers }).then((response) => {
+    let user = {...response.data};
+    user.id = user._id;
+    delete user._id;
+    localStorage.setItem("user", JSON.stringify(user));
 
     return response.data;
   });;

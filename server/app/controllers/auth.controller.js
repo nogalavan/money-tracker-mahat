@@ -1,13 +1,12 @@
 const config = require("../config/auth.config");
 const db = require("../models");
-const User = db.user;
+let jwt = require("jsonwebtoken");
+let bcrypt = require("bcryptjs");
 
-var jwt = require("jsonwebtoken");
-var bcrypt = require("bcryptjs");
+const User = db.user;
+const Transaction = db.transaction;
 
 exports.signup = (req, res) => {
-  console.log(req);
-
   const user = new User({
     username: req.body.username,
     email: req.body.email,
@@ -15,7 +14,7 @@ exports.signup = (req, res) => {
     firstName: req.body.firstName,
     lastName: req.body.lastName,
     balance: req.body.balance,
-    budget: req.body.badget,
+    budget: req.body.budget,
   });
 
   user.save((err, user) => {
@@ -29,13 +28,10 @@ exports.signup = (req, res) => {
 };
 
 exports.signin = (req, res) => {
-  console.log(req.body);
-
   User.findOne({
     username: req.body.username
   })
-    // .populate("transactions", "-__v")
-    // .populate("roles", "-__v")
+    .populate("transactions")
     .exec((err, user) => {
       if (err) {
         res.status(500).send({ message: err });
@@ -58,16 +54,10 @@ exports.signin = (req, res) => {
         });
       }
 
-      var token = jwt.sign({ id: user.id }, config.secret, {
+      let token = jwt.sign({ id: user.id }, config.secret, {
         expiresIn: 86400 // 24 hours
       });
 
-      // var authorities = [];
-      // var allTransactions = [];
-
-      // for (let i = 0; i < user.transactions.length; i++) {
-      //   allTransactions.push("ROLE_" + user.roles[i].name.toUpperCase());
-      // }
       res.status(200).send({
         id: user._id,
         username: user.username,
@@ -77,8 +67,34 @@ exports.signin = (req, res) => {
         balance: user.balance,
         budget: user.budget,
         transactions: user.transactions,
-        // roles: authorities,
         accessToken: token
       });
     });
+};
+
+exports.update = (req, res) => {
+  User.findOneAndUpdate({'username': req.body.username}, 
+    {'budget': req.body.budget, 'email': req.body.email})
+    .populate('transactions')
+    .exec((err, user) => {
+      if (err) {
+        res.status(500).send({ message: err });
+        return;
+      }
+
+      if (!user) {
+        return res.status(404).send({ message: "User Not found." });
+      }
+      res.status(200).send({
+        id: user._id,
+        username: user.username,
+        email: req.body.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        balance: user.balance,
+        budget: req.body.budget,
+        transactions: user.transactions,
+        accessToken: req.headers["x-access-token"]
+      });
+    })
 };

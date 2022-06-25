@@ -1,5 +1,5 @@
 import axios from "axios";
-import IUser from "../types/user.type";
+import authHeader from "./auth-header";
 
 const API_URL = "http://localhost:8080/api/auth/";
 
@@ -13,6 +13,17 @@ export const register = (username: String, email: String, password: String, firs
     balance,
     budget
   });
+};
+
+export const update = (username: String, email: String, budget: Number) => {
+  return axios.put(API_URL + "update", {
+    username,
+    email,
+    budget
+  }, {headers: authHeader()}).then((response) => {
+    localStorage.setItem("user", JSON.stringify(response.data));
+    return response.data;
+  });;
 };
 
 export const login = (username: string, password: string) => {

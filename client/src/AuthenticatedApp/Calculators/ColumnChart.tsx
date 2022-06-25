@@ -1,13 +1,32 @@
 import Chart from "react-apexcharts";
-const series = [{
-  name: 'הוצאות',
-  data: [44, 55, 57, 56, 61, 58, 63, 60, 66]
-  }, {
-  name: 'הכנסות',
-  data: [76, 85, 101, 98, 87, 105, 91, 114, 94]
-}]
+import * as AuthService from "../../services/auth.service";
+import moment from "moment";
+
+const dates = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+const outMoney = (user: any) => user.transactions.reduce((prev: any, curr: any) => {
+  const transDate = moment(curr.date, "x");
+  if (transDate.month() === moment().month() && transDate.year() === moment().year() && 
+      curr.type === "expense") {
+      prev[transDate.month()] = prev[transDate.month()] + curr.amount;
+  }
+  return prev;
+
+}, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+
+const inMoney = (user: any) => user.transactions.reduce((prev: any, curr: any) => {
+  const transDate = moment(curr.date, "x");
+  if (transDate.month() === moment().month() && transDate.year() === moment().year() && 
+      curr.type === "income") {
+        prev[transDate.month()] = prev[transDate.month()] + curr.amount;
+  }
+  return prev;
+
+}, [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+
+
+
 var options = {
-  // colors: ['green', 'red'],
   plotOptions: {
     bar: {
       horizontal: false,
@@ -24,17 +43,27 @@ var options = {
     colors: ['transparent']
   },
   xaxis: {
-    categories: ['Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct'],
+    categories: dates,
   }
 };
 
-const ColumnChart = () => (
-  <Chart
+const ColumnChart = () => {
+  
+  const user = AuthService.getCurrentUser();
+  const series = [{
+    name: 'הוצאות',
+    data: outMoney(user)
+    }, {
+    name: 'הכנסות',
+    data: inMoney(user)
+  }];
+
+  return <Chart
     options={options}
     series={series}
     type="bar"
     width="400px"
   />
-);
+};
 
 export default ColumnChart;

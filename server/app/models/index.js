@@ -6,6 +6,6 @@ const db = {};
 db.mongoose = mongoose;
 
 db.user = require("./user.model");
-db.transactioin = require("./transaction.model");
+db.transaction = require("./transaction.model");
 
 module.exports = db;

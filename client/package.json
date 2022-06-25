@@ -19,7 +19,7 @@
     "@types/react-router-dom": "^5.1.8",
     "apexcharts": "^3.35.3",
     "axios": "^0.21.1",
-    "babel-jest": "^27.3.1",
+    "babel-jest": "^26.6.0",
     "bootstrap": "^4.6.0",
     "formik": "^2.2.9",
     "lodash": "^4.17.21",

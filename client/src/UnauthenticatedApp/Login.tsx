@@ -43,7 +43,7 @@ const Login = () => {
                     label="שם משתמש" 
                     variant="outlined" 
                     sx={{mb: '20px'}}/>
-          <TextField required value={password}
+          <TextField required value={password} type='password'
                     onInput={e => setPassword((e.target as HTMLInputElement).value)}  label="סיסמה" variant="outlined" sx={{mb: '20px'}}/>
           <Button onClick={handleLogin} variant='contained' sx={{m: '0px 160px', backgroundColor: '#F87373', color: 'white'}}>
             התחברות
